@@ -1,117 +1,322 @@
 # Biblioteca Escolar – Control de préstamos
 
-Proyecto académico del curso **Lenguaje de Programación II (PROG04691)**.
+Proyecto académico desarrollado para el curso **Lenguaje de Programación II**.
 
-## Objetivo
+## Sobre el proyecto
 
-Sistema web pequeño para que el encargado de una biblioteca escolar registre libros y lectores, controle los préstamos y la devolución de ejemplares, y emita un reporte en PDF de los préstamos pendientes.
+**Biblioteca Escolar** es una aplicación web desarrollada para llevar el control de libros, lectores y préstamos de una biblioteca escolar.
 
-**Problema que resuelve:** evitar el control en cuadernos, donde no se sabe cuántos ejemplares quedan ni qué préstamos están vencidos.
+La idea del sistema es sencilla: reemplazar el registro manual en cuadernos por una aplicación que permita saber qué libros están disponibles, quién tiene cada ejemplar y qué préstamos ya vencieron.
 
-**Usuario:** un único rol (el bibliotecario). Por simplicidad no hay inicio de sesión, por lo que no existen credenciales de acceso.
+El sistema está pensado para ser utilizado por un único bibliotecario, por lo que no cuenta con inicio de sesión ni manejo de usuarios.
 
-## Funciones principales
+## Funcionalidades
 
-- CRUD de **libros** (código, título, autor, cantidad de ejemplares).
-- CRUD de **lectores** (nombre y correo).
-- **Préstamos:** registrar (plazo fijo de 7 días), listar y registrar devolución. El stock disponible se actualiza solo.
-- Reglas: no se prestan libros sin ejemplares disponibles, no se repiten códigos ni correos, y no se elimina un libro o lector con préstamos registrados.
-- **Reporte PDF** (JasperReports) de préstamos pendientes, marcando cuáles están vencidos.
+- Registro, consulta, edición y eliminación de **libros**.
+- Registro, consulta, edición y eliminación de **lectores**.
+- Registro de **préstamos** con un plazo de 7 días.
+- Registro de **devoluciones** y actualización automática del stock.
+- Validaciones para evitar:
+  - prestar un libro sin ejemplares disponibles;
+  - registrar códigos de libros repetidos;
+  - registrar correos de lectores repetidos;
+  - eliminar libros o lectores que tengan préstamos registrados.
+- Generación de un **reporte PDF** de los préstamos pendientes mediante JasperReports, indicando cuáles se encuentran vencidos.
 
-## Tecnologías utilizadas
+## Tecnologías
 
-| Tecnología | Uso en el proyecto |
+| Tecnología | Uso |
 |---|---|
-| Java 17 | Lenguaje del sistema |
-| Maven | Dependencias y construcción (`pom.xml`) |
-| Spring Boot 3.2.5 | Spring MVC, inyección de dependencias, validación y Thymeleaf para las vistas |
-| JPA (Spring Data JPA + Hibernate) | Entidades `Libro`, `Lector`, `Prestamo` y repositorios |
-| MySQL 8 | Base de datos `biblioteca_escolar` |
-| JasperReports 6.21.3 | Plantilla `prestamos_pendientes.jrxml`, que consulta MySQL y exporta PDF |
-| Git y GitHub | Control de versiones (instrucciones más abajo) |
+| Java 17 | Lenguaje principal |
+| Maven | Gestión de dependencias y construcción del proyecto |
+| Spring Boot 3.2.5 | Base de la aplicación web |
+| Spring MVC | Controladores y flujo de las peticiones |
+| Thymeleaf | Vistas de la aplicación |
+| Spring Data JPA + Hibernate | Persistencia y acceso a datos |
+| MySQL 8 | Base de datos |
+| JasperReports 6.21.3 | Generación del reporte PDF |
+| Git + GitHub | Control de versiones |
 
-## Estructura
+## Estructura del proyecto
 
-```
+```text
 biblioteca-prestamos/
-├── database/biblioteca_escolar.sql        Script de creación y datos de prueba
-├── application-local.properties.example   Plantilla de configuración local
+├── database/
+│   └── biblioteca_escolar.sql
+├── application-local.properties.example
 ├── pom.xml
-└── src/main
-    ├── java/com/biblioteca
-    │   ├── model/        Entidades JPA
-    │   ├── repository/   Acceso a datos
-    │   ├── service/      Reglas de negocio y generación del reporte
-    │   └── controller/   Controladores web
-    └── resources
-        ├── templates/    Vistas Thymeleaf
-        ├── static/css/   Estilos
-        ├── reportes/     Diseño JasperReports (.jrxml)
-        └── application.properties
+└── src/
+    └── main/
+        ├── java/com/biblioteca/
+        │   ├── model/        # Entidades JPA
+        │   ├── repository/   # Acceso a la base de datos
+        │   ├── service/      # Lógica del sistema
+        │   └── controller/   # Controladores web
+        │
+        └── resources/
+            ├── templates/     # Vistas Thymeleaf
+            ├── static/css/    # Estilos
+            ├── reportes/      # Plantillas JasperReports
+            └── application.properties
 ```
 
-## Requisitos previos
+## Requisitos
 
-- **JDK 21** (debe ser JDK, no solo JRE: JasperReports compila la plantilla al generar el reporte).
-- **Maven 3.9+** (o el Maven integrado de IntelliJ IDEA, Eclipse, NetBeans o VS Code).
-- **MySQL 8.0.16 o superior** y MySQL Workbench (el script usa restricciones `CHECK`).
-- Conexión a internet la primera vez, para que Maven descargue las dependencias.
+Antes de ejecutar el proyecto necesitas tener instalado:
 
-## Configurar MySQL y ejecutar el script SQL
+- **JDK 21**
+- **Maven 3.9 o superior**
+- **MySQL 8.0.16 o superior**
+- **MySQL Workbench** (recomendado para ejecutar el script)
+- Conexión a Internet durante la primera compilación para descargar las dependencias de Maven.
 
-1. Verifique que el servidor MySQL esté en ejecución.
-2. Abra MySQL Workbench y conéctese con su usuario (por ejemplo `root`).
-3. Menú **File → Open SQL Script…** y seleccione `database/biblioteca_escolar.sql`.
-4. Ejecute todo el script con el icono del rayo (**Execute**).
-5. Compruebe en el panel *Schemas* (botón de actualizar) que existe `biblioteca_escolar` con las tablas `lector`, `libro` y `prestamo`.
+> Aunque el proyecto utiliza Java 17 como versión declarada, para ejecutar y generar los reportes se utiliza **JDK 21**.
 
-El script elimina y vuelve a crear la base `biblioteca_escolar`, por lo que puede ejecutarse de nuevo para restaurar los datos de prueba. Las fechas de los préstamos de ejemplo se calculan respecto a la fecha actual, de modo que siempre hay préstamos vencidos y en plazo.
+## 1. Preparar la base de datos
 
-## Configurar la conexión
+Primero asegúrate de que MySQL esté ejecutándose.
 
-Por defecto el sistema usa `localhost:3306`, usuario `root` y contraseña vacía. Para usar su contraseña sin modificar archivos del repositorio:
+Abre **MySQL Workbench**, conéctate con tu usuario y abre:
 
-1. Copie `application-local.properties.example` como `application-local.properties` en la raíz del proyecto (junto al `pom.xml`).
-2. Edite usuario, contraseña y, si hace falta, el puerto o la URL.
+```text
+database/biblioteca_escolar.sql
+```
 
-El archivo `application-local.properties` está en `.gitignore`, así que la contraseña no se sube a GitHub.
+Ejecuta el script completo.
 
-## Importar y ejecutar en Eclipse (Windows)
+Al terminar debería aparecer la base de datos:
 
-1. Compruebe que Java funciona en una terminal con `java -version`. Este proyecto está configurado para JDK 21.
-2. En Eclipse abra **File → Import → Maven → Existing Maven Projects** y seleccione la carpeta que contiene `pom.xml`.
-3. Marque el proyecto y pulse **Finish**. Espere a que termine la descarga de dependencias.
-4. Si Eclipse pregunta por el JRE, seleccione un **JDK 21** en **Window → Preferences → Java → Installed JREs**. Si no aparece, pulse **Add → Standard VM** y seleccione la carpeta raíz del JDK, no `bin` ni `java.exe`.
-5. En **Project → Properties → Java Build Path → Libraries**, confirme que aparece **JavaSE-21**. En **Project → Clean**, limpie y reconstruya el proyecto.
-6. Ejecute `BibliotecaApplication.java` con **Run As → Java Application**. También se incluye `BibliotecaApplication.launch` como configuración de ejecución de Eclipse.
-7. Abra <http://localhost:8080>.
+```text
+biblioteca_escolar
+```
 
-### Solución al error `CreateProcess error=193`
+con las tablas:
 
-Si Eclipse intenta ejecutar una ruta como `...\jdk-21.0.12.1\bin\java` y muestra `%1 no es una aplicación Win32 válida`, la configuración de ejecución está apuntando a un ejecutable Java incorrecto o a una ruta incompleta. No es un error de la base de datos.
+```text
+lector
+libro
+prestamo
+```
 
-- No escriba manualmente la ruta terminada en `\bin\java`. Seleccione el JDK desde **Installed JREs**; Eclipse resolverá el ejecutable correcto (`java.exe`).
-- La ruta de instalación debe contener `bin\java.exe`. Si ese archivo no existe, vuelva a instalar un JDK de Windows x64 y seleccione su carpeta raíz.
-- Abra **Run → Run Configurations → Java Application**, elija `BibliotecaApplication` y en la pestaña **JRE** seleccione **Workspace default JRE** o el JDK 21 correcto. Elimine cualquier ruta antigua de `Downloads`.
-- Después use **Project → Clean** y vuelva a ejecutar.
+El script elimina y vuelve a crear la base de datos, por lo que también puede utilizarse para volver a cargar los datos de prueba.
 
-Como alternativa, si Maven está instalado y `mvn -version` funciona, ejecute `ejecutar.bat` desde la carpeta del proyecto o `mvn spring-boot:run` desde una terminal. El archivo `.bat` no configura Eclipse; sirve para comprobar Java/Maven y arrancar desde terminal.
+Los préstamos incluidos en los datos de prueba utilizan fechas calculadas respecto a la fecha actual, por lo que siempre se pueden encontrar préstamos pendientes y vencidos para probar el sistema.
 
-## Cómo probar las funciones
+## 2. Configurar la conexión a MySQL
 
-1. **Préstamos** (pantalla inicial): con los datos de prueba aparecen 7 préstamos; 5 siguen pendientes y 2 de ellos están vencidos.
-2. **Registrar préstamo:** elija un libro disponible y un lector. El préstamo aparece en la lista y el libro pierde un ejemplar disponible.
-3. **Devolución:** pulse *Registrar devolución*; el ejemplar vuelve al stock.
-4. **Libros y Lectores:** cree, edite y elimine registros. Pruebe dejar campos vacíos, repetir un código o un correo, o eliminar un libro con préstamos para ver los mensajes de validación.
-5. **Libro agotado:** *Conversación en La Catedral* tiene 0 ejemplares disponibles y no aparece al registrar un préstamo.
+La configuración de ejemplo utiliza:
 
-## Generar el reporte
+```text
+Host: localhost
+Puerto: 3306
+Usuario: root
+Contraseña: vacía
+```
 
-Pulse **Reporte PDF** en el menú, o abra directamente <http://localhost:8080/reportes/prestamos-pendientes>. Se muestra en el navegador un PDF con lector, libro, fechas, estado y totales; desde el visor puede descargarlo. La consulta SQL está dentro de `src/main/resources/reportes/prestamos_pendientes.jrxml`.
+Si tu instalación de MySQL utiliza una contraseña, no es necesario modificar el archivo principal del proyecto.
 
-## Uso de Git y GitHub
+Copia:
 
-Desde la carpeta del proyecto:
+```text
+application-local.properties.example
+```
+
+como:
+
+```text
+application-local.properties
+```
+
+y configura ahí tus datos de conexión.
+
+Este archivo está incluido en `.gitignore`, por lo que las credenciales locales no deberían terminar en el repositorio.
+
+## 3. Ejecutar el proyecto en Eclipse
+
+1. Comprueba que Java está disponible:
+
+```bash
+java -version
+```
+
+2. En Eclipse ve a:
+
+**File → Import → Maven → Existing Maven Projects**
+
+3. Selecciona la carpeta donde se encuentra `pom.xml`.
+
+4. Espera a que Maven descargue las dependencias.
+
+5. Si Eclipse solicita un JRE, selecciona un **JDK 21** desde:
+
+**Window → Preferences → Java → Installed JREs**
+
+Si no aparece, agrégalo con **Add → Standard VM** y selecciona la carpeta principal del JDK.
+
+6. En:
+
+**Project → Properties → Java Build Path → Libraries**
+
+verifica que esté seleccionado **JavaSE-21**.
+
+7. Si es necesario, ejecuta:
+
+**Project → Clean**
+
+8. Ejecuta:
+
+```text
+BibliotecaApplication.java
+```
+
+con **Run As → Java Application**.
+
+También se incluye una configuración de ejecución llamada:
+
+```text
+BibliotecaApplication.launch
+```
+
+9. Una vez iniciada la aplicación, entra desde:
+
+```text
+http://localhost:8080
+```
+
+## Si aparece `CreateProcess error=193`
+
+Este error normalmente aparece cuando Eclipse está intentando utilizar una ruta incorrecta para Java.
+
+Por ejemplo, si intenta ejecutar algo parecido a:
+
+```text
+...\jdk-21.0.12.1\bin\java
+```
+
+verifica que Eclipse tenga configurado el JDK y no una ruta incompleta.
+
+La instalación correcta debe contener:
+
+```text
+bin\java.exe
+```
+
+En Eclipse:
+
+**Run → Run Configurations → Java Application**
+
+Selecciona `BibliotecaApplication` y revisa la pestaña **JRE**.
+
+Puedes utilizar:
+
+```text
+Workspace default JRE
+```
+
+si el JDK 21 está configurado correctamente.
+
+Después de corregirlo:
+
+**Project → Clean**
+
+y vuelve a ejecutar la aplicación.
+
+### Otra opción
+
+Si Maven funciona correctamente desde la terminal:
+
+```bash
+mvn -version
+```
+
+puedes iniciar el proyecto con:
+
+```bash
+mvn spring-boot:run
+```
+
+También puedes utilizar el archivo:
+
+```text
+ejecutar.bat
+```
+
+para iniciarlo desde Windows.
+
+## Probar el sistema
+
+Una vez iniciada la aplicación, estas son algunas pruebas rápidas para comprobar las funciones principales.
+
+### Préstamos
+
+En la pantalla inicial aparecen los préstamos de prueba. Hay **7 préstamos**, de los cuales **5 permanecen pendientes** y **2 están vencidos**.
+
+### Registrar un préstamo
+
+Selecciona un libro disponible y un lector.
+
+Al registrar el préstamo:
+
+- se guarda el nuevo préstamo;
+- disminuye la cantidad disponible del libro;
+- el préstamo aparece en el listado.
+
+### Registrar una devolución
+
+Selecciona un préstamo pendiente y utiliza **Registrar devolución**.
+
+El ejemplar vuelve a estar disponible en el stock.
+
+### Libros y lectores
+
+Desde los módulos correspondientes puedes crear, editar y eliminar registros.
+
+También puedes probar las validaciones utilizando:
+
+- campos vacíos;
+- códigos de libro repetidos;
+- correos repetidos;
+- eliminación de un libro con préstamos registrados;
+- eliminación de un lector con préstamos registrados.
+
+### Libro sin stock
+
+El libro:
+
+```text
+Conversación en La Catedral
+```
+
+tiene actualmente **0 ejemplares disponibles**, por lo que no puede seleccionarse para registrar un nuevo préstamo.
+
+## Reporte de préstamos
+
+El sistema genera un PDF con los préstamos pendientes utilizando **JasperReports**.
+
+Puedes acceder desde el menú **Reporte PDF** o directamente desde:
+
+```text
+http://localhost:8080/reportes/prestamos-pendientes
+```
+
+El reporte muestra información como:
+
+- lector;
+- libro;
+- fecha del préstamo;
+- fecha límite;
+- estado;
+- totales.
+
+La plantilla utilizada se encuentra en:
+
+```text
+src/main/resources/reportes/prestamos_pendientes.jrxml
+```
+
+## Git y GitHub
+
+Para iniciar el repositorio local:
 
 ```bash
 git init
@@ -120,17 +325,14 @@ git commit -m "Versión inicial del sistema de préstamos"
 git branch -M main
 ```
 
-Para publicarlo:
-
-1. En GitHub cree un repositorio nuevo y vacío (sin README ni `.gitignore`).
-2. Copie su URL y ejecute (reemplace `<usuario>` y `<repositorio>` por los suyos):
+Después crea un repositorio vacío en GitHub y vincúlalo con:
 
 ```bash
 git remote add origin https://github.com/<usuario>/<repositorio>.git
 git push -u origin main
 ```
 
-Para registrar cambios posteriores:
+Para subir cambios posteriormente:
 
 ```bash
 git status
@@ -139,11 +341,30 @@ git commit -m "Descripción breve del cambio"
 git push
 ```
 
-Si GitHub solicita autenticación, use un *Personal Access Token* en lugar de la contraseña de la cuenta.
+Si GitHub solicita autenticación mediante HTTPS, utiliza un **Personal Access Token** en lugar de la contraseña de la cuenta.
 
-## Alcance y limitaciones
+## Alcance actual
 
-- No incluye inicio de sesión ni roles: está pensado para un solo usuario.
-- El plazo de préstamo (7 días) es una constante en `PrestamoService`.
-- Los préstamos no se editan ni se eliminan; solo se registran y se devuelven, para conservar el historial.
-- El esquema de la base de datos se crea únicamente con el script SQL; Hibernate solo lo valida (`ddl-auto=validate`).
+El proyecto está enfocado en el control básico de préstamos de una biblioteca escolar.
+
+Actualmente:
+
+- no hay inicio de sesión ni roles;
+- está pensado para un único bibliotecario;
+- el plazo de cada préstamo es de **7 días**;
+- los préstamos no se editan ni eliminan, únicamente se registran y posteriormente se devuelven;
+- el historial se conserva mediante los registros de préstamos;
+- la estructura de la base de datos se crea mediante el script SQL;
+- Hibernate utiliza `ddl-auto=validate`, por lo que no se encarga de crear las tablas.
+
+## Datos de prueba
+
+El script SQL incluido en:
+
+```text
+database/biblioteca_escolar.sql
+```
+
+deja el proyecto listo para realizar pruebas sin tener que registrar todos los datos manualmente.
+
+Si necesitas restaurar el estado inicial, puedes volver a ejecutar el script desde MySQL Workbench.
