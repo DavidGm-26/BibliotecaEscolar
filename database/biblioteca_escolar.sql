@@ -1,4 +1,3 @@
-DROP DATABASE IF EXISTS biblioteca_escolar;
 CREATE DATABASE biblioteca_escolar CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE biblioteca_escolar;
 
@@ -39,11 +38,11 @@ CREATE TABLE prestamo (
 ) ENGINE = InnoDB;
 
 INSERT INTO lector (nombre, correo) VALUES
-    ('Ana Torres Díaz', 'ana.torres@ejemplo.com'),
-    ('Luis Ramírez Soto', 'luis.ramirez@ejemplo.com'),
-    ('María Quispe León', 'maria.quispe@ejemplo.com'),
-    ('Carlos Vega Rojas', 'carlos.vega@ejemplo.com'),
-    ('Rosa Huamán Paz', 'rosa.huaman@ejemplo.com');
+    ('Ana Torres Díaz', 'ana.torres@gmail.com'),
+    ('Luis Ramírez Soto', 'luis.ramirez@gmail.com'),
+    ('María Quispe León', 'maria.quispe@gmail.com'),
+    ('Carlos Vega Rojas', 'carlos.vega@gmail.com'),
+    ('Rosa Huamán Paz', 'rosa.huaman@gmail.com');
 
 INSERT INTO libro (codigo, titulo, autor, ejemplares, ejemplares_disponibles) VALUES
     ('LIB-001', 'Cien años de soledad', 'Gabriel García Márquez', 3, 1),
@@ -63,3 +62,49 @@ INSERT INTO prestamo (libro_id, lector_id, fecha_prestamo, fecha_limite, fecha_d
     (3, 1, DATE_SUB(CURDATE(), INTERVAL 20 DAY), DATE_SUB(CURDATE(), INTERVAL 13 DAY), DATE_SUB(CURDATE(), INTERVAL 15 DAY)),
     (5, 5, DATE_SUB(CURDATE(), INTERVAL 12 DAY), DATE_SUB(CURDATE(), INTERVAL 5 DAY), DATE_SUB(CURDATE(), INTERVAL 6 DAY)),
     (6, 2, DATE_SUB(CURDATE(), INTERVAL 5 DAY), DATE_ADD(CURDATE(), INTERVAL 2 DAY), NULL);
+
+USE biblioteca_escolar;
+
+ALTER TABLE libro ADD COLUMN categoria VARCHAR(50) NULL AFTER autor;
+
+UPDATE libro SET categoria = 'Literatura universal' WHERE codigo IN ('LIB-001', 'LIB-006');
+UPDATE libro SET categoria = 'Infantil' WHERE codigo = 'LIB-002';
+UPDATE libro SET categoria = 'Literatura peruana' WHERE codigo IN ('LIB-003', 'LIB-004', 'LIB-005', 'LIB-007', 'LIB-008');
+
+DROP TABLE IF EXISTS solicitud_prestamo;
+
+CREATE TABLE solicitud_prestamo (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    libro_id BIGINT NOT NULL,
+    lector_id BIGINT NOT NULL,
+    fecha_solicitud DATE NOT NULL,
+    estado VARCHAR(10) NOT NULL,
+    fecha_resolucion DATE NULL,
+    motivo_rechazo VARCHAR(200) NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_solicitud_libro FOREIGN KEY (libro_id) REFERENCES libro (id) ON DELETE CASCADE,
+    CONSTRAINT fk_solicitud_lector FOREIGN KEY (lector_id) REFERENCES lector (id) ON DELETE CASCADE,
+    CONSTRAINT ck_solicitud_estado CHECK (estado IN ('PENDIENTE', 'APROBADA', 'RECHAZADA')),
+    CONSTRAINT ck_solicitud_resolucion CHECK (fecha_resolucion IS NULL OR fecha_resolucion >= fecha_solicitud),
+    INDEX idx_solicitud_lector_estado (lector_id, estado)
+) ENGINE = InnoDB;
+
+INSERT INTO solicitud_prestamo (libro_id, lector_id, fecha_solicitud, estado, fecha_resolucion, motivo_rechazo)
+SELECT l.id, r.id, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 'PENDIENTE', NULL, NULL
+FROM libro l, lector r
+WHERE l.codigo = 'LIB-003' AND r.correo = 'luis.ramirez@gmail.com';
+
+INSERT INTO solicitud_prestamo (libro_id, lector_id, fecha_solicitud, estado, fecha_resolucion, motivo_rechazo)
+SELECT l.id, r.id, CURDATE(), 'PENDIENTE', NULL, NULL
+FROM libro l, lector r
+WHERE l.codigo = 'LIB-007' AND r.correo = 'rosa.huaman@gmail.com';
+
+INSERT INTO solicitud_prestamo (libro_id, lector_id, fecha_solicitud, estado, fecha_resolucion, motivo_rechazo)
+SELECT l.id, r.id, DATE_SUB(CURDATE(), INTERVAL 13 DAY), 'APROBADA', DATE_SUB(CURDATE(), INTERVAL 12 DAY), NULL
+FROM libro l, lector r
+WHERE l.codigo = 'LIB-005' AND r.correo = 'rosa.huaman@gmail.com';
+
+INSERT INTO solicitud_prestamo (libro_id, lector_id, fecha_solicitud, estado, fecha_resolucion, motivo_rechazo)
+SELECT l.id, r.id, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 'RECHAZADA', DATE_SUB(CURDATE(), INTERVAL 1 DAY), 'Sin ejemplares disponibles'
+FROM libro l, lector r
+WHERE l.codigo = 'LIB-004' AND r.correo = 'carlos.vega@gmail.com';
