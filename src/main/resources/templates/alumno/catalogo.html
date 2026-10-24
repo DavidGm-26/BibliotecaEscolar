@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: cabecera('Catálogo')}"></head>
+<body>
+<div th:replace="~{fragmentos/base :: menu('catalogo')}"></div>
+<main class="contenido">
+    <header class="titulo-pagina">
+        <div>
+            <h1>Catálogo de libros</h1>
+            <p>Busque un libro, verifique su disponibilidad y solicite el préstamo.</p>
+        </div>
+    </header>
+    <div th:replace="~{fragmentos/base :: mensajes}"></div>
+
+    <section class="tarjeta">
+        <form class="filtros" th:action="@{/catalogo}" method="get">
+            <div class="buscador">
+                <svg th:replace="~{fragmentos/iconos :: icono('buscar')}"></svg>
+                <input type="search" name="q" th:value="${q}" placeholder="Título, autor o categoría...">
+            </div>
+            <select name="categoria" aria-label="Categoría">
+                <option value="">Todas las categorías</option>
+                <option th:each="c : ${categorias}" th:value="${c}" th:text="${c}"
+                        th:selected="${c == categoriaSeleccionada}"></option>
+            </select>
+            <label class="filtro-check">
+                <input type="checkbox" name="soloDisponibles" value="true" th:checked="${soloDisponibles}">
+                Solo disponibles
+            </label>
+            <button type="submit" class="btn btn-primario">Buscar</button>
+            <a class="btn btn-secundario" th:href="@{/catalogo}">Limpiar</a>
+        </form>
+    </section>
+
+    <section class="cuadricula-libros">
+        <article class="libro-card" th:each="libro : ${libros}">
+            <div class="libro-portada"><svg th:replace="~{fragmentos/iconos :: icono('libro')}"></svg></div>
+            <div class="libro-cuerpo">
+                <span class="libro-categoria" th:text="${libro.categoria != null ? libro.categoria : 'Sin categoría'}">Categoría</span>
+                <h3 th:text="${libro.titulo}">Título</h3>
+                <span class="autor" th:text="${libro.autor}">Autor</span>
+
+                <div class="disponibilidad">
+                    <div class="barra">
+                        <span th:classappend="${libro.ejemplaresDisponibles == 0} ? 'agotado'"
+                              th:style="'width:' + ${libro.ejemplaresDisponibles * 100 / libro.ejemplares} + '%'"></span>
+                    </div>
+                    <small th:if="${libro.ejemplaresDisponibles > 0}"
+                           th:text="${libro.ejemplaresDisponibles + ' de ' + libro.ejemplares + ' ejemplares disponibles'}"></small>
+                    <small class="texto-agotado" th:if="${libro.ejemplaresDisponibles == 0}">Sin ejemplares disponibles</small>
+                </div>
+
+                <div class="libro-accion">
+                    <span class="etiqueta aviso" th:if="${librosPendientes.contains(libro.id)}">Solicitud pendiente</span>
+                    <form th:if="${puedeSolicitar and libro.ejemplaresDisponibles > 0 and !librosPendientes.contains(libro.id)}"
+                          th:action="@{/solicitudes}" method="post">
+                        <input type="hidden" name="libroId" th:value="${libro.id}">
+                        <button type="submit" class="btn btn-primario btn-chico">
+                            <svg th:replace="~{fragmentos/iconos :: icono('enviar')}"></svg> Solicitar préstamo
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-secundario btn-chico" disabled
+                            th:if="${libro.ejemplaresDisponibles == 0}">No disponible</button>
+                </div>
+            </div>
+        </article>
+    </section>
+    <p class="vacio" th:if="${#lists.isEmpty(libros)}">No se encontraron libros con esos criterios.</p>
+</main>
+</body>
+</html>

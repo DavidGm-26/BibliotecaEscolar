@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="prestamos_pendientes" pageWidth="595" pageHeight="842" columnWidth="535"
+              leftMargin="30" rightMargin="30" topMargin="30" bottomMargin="30">
+
+    <queryString>
+        <![CDATA[
+SELECT l.nombre AS lector,
+       b.titulo AS libro,
+       p.fecha_prestamo,
+       p.fecha_limite,
+       CASE WHEN p.fecha_limite < CURDATE() THEN 'Vencido' ELSE 'En plazo' END AS estado
+FROM prestamo p
+JOIN lector l ON l.id = p.lector_id
+JOIN libro b ON b.id = p.libro_id
+WHERE p.fecha_devolucion IS NULL
+ORDER BY p.fecha_limite, l.nombre
+        ]]>
+    </queryString>
+
+    <field name="lector" class="java.lang.String"/>
+    <field name="libro" class="java.lang.String"/>
+    <field name="fecha_prestamo" class="java.sql.Date"/>
+    <field name="fecha_limite" class="java.sql.Date"/>
+    <field name="estado" class="java.lang.String"/>
+
+    <variable name="totalPendientes" class="java.lang.Integer" calculation="Count">
+        <variableExpression><![CDATA[$F{lector}]]></variableExpression>
+    </variable>
+    <variable name="totalVencidos" class="java.lang.Integer" calculation="Sum">
+        <variableExpression><![CDATA["Vencido".equals($F{estado}) ? 1 : 0]]></variableExpression>
+        <initialValueExpression><![CDATA[0]]></initialValueExpression>
+    </variable>
+
+    <title>
+        <band height="70">
+            <staticText>
+                <reportElement x="0" y="0" width="535" height="26"/>
+                <textElement>
+                    <font size="18" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Biblioteca Escolar]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="0" y="28" width="535" height="20"/>
+                <textElement>
+                    <font size="12"/>
+                </textElement>
+                <text><![CDATA[Reporte de préstamos pendientes de devolución]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="0" y="50" width="535" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Fecha de emisión: " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <columnHeader>
+        <band height="24">
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#DDE5F0" x="0" y="0" width="125" height="24"/>
+                <box leftPadding="4"/>
+                <textElement verticalAlignment="Middle">
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Lector]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#DDE5F0" x="125" y="0" width="175" height="24"/>
+                <box leftPadding="4"/>
+                <textElement verticalAlignment="Middle">
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Libro]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#DDE5F0" x="300" y="0" width="80" height="24"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Préstamo]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#DDE5F0" x="380" y="0" width="80" height="24"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Límite]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#DDE5F0" x="460" y="0" width="75" height="24"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Estado]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="20">
+            <textField isStretchWithOverflow="true">
+                <reportElement x="0" y="0" width="125" height="20"/>
+                <box leftPadding="4">
+                    <bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+                </box>
+                <textElement verticalAlignment="Middle">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{lector}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true">
+                <reportElement x="125" y="0" width="175" height="20"/>
+                <box leftPadding="4">
+                    <bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+                </box>
+                <textElement verticalAlignment="Middle">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{libro}]]></textFieldExpression>
+            </textField>
+            <textField pattern="dd/MM/yyyy">
+                <reportElement x="300" y="0" width="80" height="20"/>
+                <box>
+                    <bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{fecha_prestamo}]]></textFieldExpression>
+            </textField>
+            <textField pattern="dd/MM/yyyy">
+                <reportElement x="380" y="0" width="80" height="20"/>
+                <box>
+                    <bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{fecha_limite}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="460" y="0" width="75" height="20"/>
+                <box>
+                    <bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{estado}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <pageFooter>
+        <band height="24">
+            <textField>
+                <reportElement x="415" y="4" width="80" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Página " + $V{PAGE_NUMBER} + " de"]]></textFieldExpression>
+            </textField>
+            <textField evaluationTime="Report">
+                <reportElement x="497" y="4" width="38" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[String.valueOf($V{PAGE_NUMBER})]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+
+    <summary>
+        <band height="40">
+            <textField>
+                <reportElement x="0" y="12" width="535" height="18"/>
+                <textElement>
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Total de préstamos pendientes: " + $V{totalPendientes} + "   |   Vencidos: " + $V{totalVencidos}]]></textFieldExpression>
+            </textField>
+        </band>
+    </summary>
+</jasperReport>

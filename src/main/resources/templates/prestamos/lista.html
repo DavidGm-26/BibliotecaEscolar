@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: cabecera('Préstamos')}"></head>
+<body>
+<div th:replace="~{fragmentos/base :: menu('prestamos')}"></div>
+<main class="contenido">
+    <header class="titulo-pagina">
+        <div>
+            <h1>Préstamos</h1>
+            <p>Registro de préstamos y devoluciones.</p>
+        </div>
+        <a class="btn btn-acento" th:href="@{/prestamos/nuevo}">
+            <svg th:replace="~{fragmentos/iconos :: icono('mas')}"></svg> Registrar préstamo
+        </a>
+    </header>
+    <div th:replace="~{fragmentos/base :: mensajes}"></div>
+
+    <section class="tarjeta">
+        <div class="herramientas">
+            <div class="buscador">
+                <svg th:replace="~{fragmentos/iconos :: icono('buscar')}"></svg>
+                <input type="search" placeholder="Buscar por libro o lector..." data-filtrar="#tabla-prestamos tr[data-buscable]">
+            </div>
+        </div>
+        <div class="tabla-contenedor">
+            <table id="tabla-prestamos">
+                <thead>
+                <tr>
+                    <th>Libro</th>
+                    <th>Lector</th>
+                    <th>Préstamo</th>
+                    <th>Límite</th>
+                    <th>Devolución</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${prestamos}" data-buscable>
+                    <td><strong th:text="${p.libro.titulo}"></strong></td>
+                    <td th:text="${p.lector.nombre}"></td>
+                    <td th:text="${#temporals.format(p.fechaPrestamo, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${#temporals.format(p.fechaLimite, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${p.fechaDevolucion != null ? #temporals.format(p.fechaDevolucion, 'dd/MM/yyyy') : '—'}"></td>
+                    <td>
+                        <span class="etiqueta neutro" th:if="${p.fechaDevolucion != null}">Devuelto</span>
+                        <span class="etiqueta peligro" th:if="${p.vencido}">Vencido</span>
+                        <span class="etiqueta exito" th:if="${p.fechaDevolucion == null and !p.vencido}">En plazo</span>
+                    </td>
+                    <td>
+                        <form th:if="${p.fechaDevolucion == null}"
+                              th:action="@{/prestamos/{id}/devolver(id=${p.id})}" method="post">
+                            <button type="submit" class="btn btn-primario btn-chico">
+                                <svg th:replace="~{fragmentos/iconos :: icono('devolver')}"></svg> Devolver
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(prestamos)}">
+                    <td colspan="7" class="vacio">No hay préstamos registrados.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: cabecera('Iniciar sesión')}"></head>
+<body class="pagina-login">
+<section class="login-hero">
+    <span class="marca-icono"><svg th:replace="~{fragmentos/iconos :: icono('libro')}"></svg></span>
+    <h1>Biblioteca Escolar</h1>
+    <p>Gestión sencilla de libros, lectores y préstamos para toda la comunidad escolar.</p>
+    <ul>
+        <li><svg th:replace="~{fragmentos/iconos :: icono('check')}"></svg> Control de ejemplares disponibles</li>
+        <li><svg th:replace="~{fragmentos/iconos :: icono('check')}"></svg> Seguimiento de devoluciones y vencimientos</li>
+        <li><svg th:replace="~{fragmentos/iconos :: icono('check')}"></svg> Consulta del catálogo para alumnos</li>
+    </ul>
+</section>
+<main class="login-lado">
+    <section class="login-tarjeta">
+        <h2>Iniciar sesión</h2>
+        <p>Seleccione su perfil e ingrese sus datos.</p>
+        <p class="alerta error" th:if="${error}">
+            <svg th:replace="~{fragmentos/iconos :: icono('alerta')}"></svg>
+            <span th:text="${error}"></span>
+        </p>
+        <form class="formulario" th:action="@{/login}" method="post">
+            <div class="selector-rol">
+                <label class="opcion-rol">
+                    <input type="radio" name="rol" value="ADMINISTRADOR" data-ejemplo="admin"
+                           th:checked="${rolSeleccionado == null or rolSeleccionado == 'ADMINISTRADOR'}">
+                    <span><svg th:replace="~{fragmentos/iconos :: icono('escudo')}"></svg> Administrador</span>
+                </label>
+                <label class="opcion-rol">
+                    <input type="radio" name="rol" value="ALUMNO" data-ejemplo="correo del lector"
+                           th:checked="${rolSeleccionado == 'ALUMNO'}">
+                    <span><svg th:replace="~{fragmentos/iconos :: icono('usuario')}"></svg> Alumno</span>
+                </label>
+            </div>
+
+            <label for="usuario">Usuario o correo</label>
+            <input type="text" id="usuario" name="usuario" autocomplete="username" required autofocus>
+
+            <label for="clave">Contraseña</label>
+            <input type="password" id="clave" name="clave" autocomplete="current-password" required>
+
+            <div class="acciones">
+                <button type="submit" class="btn btn-acento btn-bloque">Ingresar</button>
+            </div>
+        </form>
+        <p class="ayuda">Los alumnos ingresan con el correo registrado en la biblioteca.</p>
+    </section>
+</main>
+</body>
+</html>

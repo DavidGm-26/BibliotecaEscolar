@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: cabecera('Libros')}"></head>
+<body>
+<div th:replace="~{fragmentos/base :: menu('libros')}"></div>
+<main class="contenido">
+    <header class="titulo-pagina">
+        <div>
+            <h1>Libros</h1>
+            <p>Catálogo y disponibilidad de ejemplares.</p>
+        </div>
+        <a class="btn btn-acento" th:href="@{/libros/nuevo}">
+            <svg th:replace="~{fragmentos/iconos :: icono('mas')}"></svg> Nuevo libro
+        </a>
+    </header>
+    <div th:replace="~{fragmentos/base :: mensajes}"></div>
+
+    <section class="tarjeta">
+        <div class="herramientas">
+            <div class="buscador">
+                <svg th:replace="~{fragmentos/iconos :: icono('buscar')}"></svg>
+                <input type="search" placeholder="Buscar libro..." data-filtrar="#tabla-libros tr[data-buscable]">
+            </div>
+        </div>
+        <div class="tabla-contenedor">
+            <table id="tabla-libros">
+                <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Título</th>
+                    <th>Autor</th>
+                    <th>Categoría</th>
+                    <th>Ejemplares</th>
+                    <th>Disponibilidad</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="libro : ${libros}" data-buscable>
+                    <td th:text="${libro.codigo}"></td>
+                    <td><strong th:text="${libro.titulo}"></strong></td>
+                    <td th:text="${libro.autor}"></td>
+                    <td th:text="${libro.categoria != null ? libro.categoria : '—'}"></td>
+                    <td th:text="${libro.ejemplares}"></td>
+                    <td>
+                        <span class="etiqueta exito" th:if="${libro.ejemplaresDisponibles > 0}"
+                              th:text="${libro.ejemplaresDisponibles + ' disponibles'}"></span>
+                        <span class="etiqueta peligro" th:if="${libro.ejemplaresDisponibles == 0}">Agotado</span>
+                    </td>
+                    <td>
+                        <div class="acciones">
+                            <a class="btn btn-secundario btn-chico" th:href="@{/libros/{id}/editar(id=${libro.id})}">
+                                <svg th:replace="~{fragmentos/iconos :: icono('editar')}"></svg> Editar
+                            </a>
+                            <form th:action="@{/libros/{id}/eliminar(id=${libro.id})}" method="post"
+                                  onsubmit="return confirm('¿Eliminar este libro?')">
+                                <button type="submit" class="btn btn-peligro btn-chico">
+                                    <svg th:replace="~{fragmentos/iconos :: icono('borrar')}"></svg> Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(libros)}">
+                    <td colspan="7" class="vacio">No hay libros registrados.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

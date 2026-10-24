@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: cabecera('Error del sistema')}"></head>
+<body>
+<main class="pagina-centrada">
+    <section class="tarjeta tarjeta-centrada">
+        <span class="resumen-icono rojo"><svg th:replace="~{fragmentos/iconos :: icono('alerta')}"></svg></span>
+        <p class="codigo-error" th:text="${status}">500</p>
+        <h2>Ocurrió un problema en el sistema</h2>
+        <p>No se pudo completar la operación. Intente nuevamente; si continúa, avise al administrador.</p>
+        <a class="btn btn-primario" th:href="@{/}">
+            <svg th:replace="~{fragmentos/iconos :: icono('inicio')}"></svg> Volver al inicio
+        </a>
+    </section>
+</main>
+</body>
+</html>

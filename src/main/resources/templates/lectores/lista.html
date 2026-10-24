@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: cabecera('Lectores')}"></head>
+<body>
+<div th:replace="~{fragmentos/base :: menu('lectores')}"></div>
+<main class="contenido">
+    <header class="titulo-pagina">
+        <div>
+            <h1>Lectores</h1>
+            <p>Alumnos registrados en la biblioteca.</p>
+        </div>
+        <a class="btn btn-acento" th:href="@{/lectores/nuevo}">
+            <svg th:replace="~{fragmentos/iconos :: icono('mas')}"></svg> Nuevo lector
+        </a>
+    </header>
+    <div th:replace="~{fragmentos/base :: mensajes}"></div>
+
+    <section class="tarjeta">
+        <div class="herramientas">
+            <div class="buscador">
+                <svg th:replace="~{fragmentos/iconos :: icono('buscar')}"></svg>
+                <input type="search" placeholder="Buscar lector..." data-filtrar="#tabla-lectores tr[data-buscable]">
+            </div>
+        </div>
+        <div class="tabla-contenedor">
+            <table id="tabla-lectores">
+                <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="lector : ${lectores}" data-buscable>
+                    <td>
+                        <div class="celda-persona">
+                            <span class="avatar" th:text="${#strings.toUpperCase(#strings.substring(lector.nombre, 0, 1))}">L</span>
+                            <strong th:text="${lector.nombre}"></strong>
+                        </div>
+                    </td>
+                    <td th:text="${lector.correo}"></td>
+                    <td>
+                        <div class="acciones">
+                            <a class="btn btn-secundario btn-chico" th:href="@{/lectores/{id}/editar(id=${lector.id})}">
+                                <svg th:replace="~{fragmentos/iconos :: icono('editar')}"></svg> Editar
+                            </a>
+                            <form th:action="@{/lectores/{id}/eliminar(id=${lector.id})}" method="post"
+                                  onsubmit="return confirm('¿Eliminar este lector?')">
+                                <button type="submit" class="btn btn-peligro btn-chico">
+                                    <svg th:replace="~{fragmentos/iconos :: icono('borrar')}"></svg> Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(lectores)}">
+                    <td colspan="3" class="vacio">No hay lectores registrados.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

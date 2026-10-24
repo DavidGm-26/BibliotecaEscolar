@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: cabecera('Error')}"></head>
+<body>
+<main class="pagina-centrada">
+    <section class="tarjeta tarjeta-centrada">
+        <span class="resumen-icono rojo"><svg th:replace="~{fragmentos/iconos :: icono('alerta')}"></svg></span>
+        <h2>No se pudo completar la operación</h2>
+        <p class="alerta error">
+            <svg th:replace="~{fragmentos/iconos :: icono('alerta')}"></svg>
+            <span th:text="${mensaje}"></span>
+        </p>
+        <a class="btn btn-primario" th:href="@{/}">
+            <svg th:replace="~{fragmentos/iconos :: icono('inicio')}"></svg> Volver al inicio
+        </a>
+    </section>
+</main>
+</body>
+</html>

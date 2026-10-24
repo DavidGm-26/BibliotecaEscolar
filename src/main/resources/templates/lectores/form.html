@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: cabecera('Lector')}"></head>
+<body>
+<div th:replace="~{fragmentos/base :: menu('lectores')}"></div>
+<main class="contenido">
+    <header class="titulo-pagina">
+        <div>
+            <h1 th:text="${lector.id == null} ? 'Nuevo lector' : 'Editar lector'">Lector</h1>
+            <p>El correo es el usuario con el que el alumno inicia sesión.</p>
+        </div>
+    </header>
+    <div th:replace="~{fragmentos/base :: mensajes}"></div>
+
+    <section class="tarjeta">
+        <form class="formulario" th:action="@{/lectores}" th:object="${lector}" method="post">
+            <input type="hidden" th:field="*{id}">
+
+            <label for="nombre">Nombre completo</label>
+            <input type="text" id="nombre" th:field="*{nombre}" maxlength="100">
+            <span class="campo-error" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></span>
+
+            <label for="correo">Correo electrónico</label>
+            <input type="text" id="correo" th:field="*{correo}" maxlength="100">
+            <span class="campo-error" th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}"></span>
+
+            <div class="acciones">
+                <button type="submit" class="btn btn-primario">
+                    <svg th:replace="~{fragmentos/iconos :: icono('check')}"></svg> Guardar
+                </button>
+                <a class="btn btn-secundario" th:href="@{/lectores}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

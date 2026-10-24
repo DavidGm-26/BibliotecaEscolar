@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="cabecera(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titulo} + ' | Biblioteca Escolar'">Biblioteca Escolar</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+<body>
+<div th:fragment="menu(activo)" class="navegacion">
+    <header class="barra-superior">
+        <button type="button" class="btn-icono" data-abrir-menu aria-label="Abrir menú">
+            <svg th:replace="~{fragmentos/iconos :: icono('menu')}"></svg>
+        </button>
+        <strong>Biblioteca Escolar</strong>
+    </header>
+    <div class="velo" data-cerrar-menu></div>
+    <aside class="barra-lateral">
+        <div class="marca">
+            <span class="marca-icono"><svg th:replace="~{fragmentos/iconos :: icono('libro')}"></svg></span>
+            <div>
+                <strong>Biblioteca</strong>
+                <small>Escolar</small>
+            </div>
+        </div>
+        <nav>
+            <th:block th:if="${usuarioActual.administrador}">
+                <a th:href="@{/}" th:classappend="${activo == 'inicio'} ? 'activo'">
+                    <svg th:replace="~{fragmentos/iconos :: icono('inicio')}"></svg> Inicio
+                </a>
+                <a th:href="@{/prestamos}" th:classappend="${activo == 'prestamos'} ? 'activo'">
+                    <svg th:replace="~{fragmentos/iconos :: icono('prestamos')}"></svg> Préstamos
+                </a>
+                <a th:href="@{/gestion-solicitudes}" th:classappend="${activo == 'solicitudes'} ? 'activo'">
+                    <svg th:replace="~{fragmentos/iconos :: icono('bandeja')}"></svg> Solicitudes
+                </a>
+                <a th:href="@{/libros}" th:classappend="${activo == 'libros'} ? 'activo'">
+                    <svg th:replace="~{fragmentos/iconos :: icono('libro')}"></svg> Libros
+                </a>
+                <a th:href="@{/lectores}" th:classappend="${activo == 'lectores'} ? 'activo'">
+                    <svg th:replace="~{fragmentos/iconos :: icono('usuarios')}"></svg> Lectores
+                </a>
+                <a th:href="@{/reportes/prestamos-pendientes}" target="_blank">
+                    <svg th:replace="~{fragmentos/iconos :: icono('reporte')}"></svg> Reporte PDF
+                </a>
+            </th:block>
+            <th:block th:unless="${usuarioActual.administrador}">
+                <a th:href="@{/catalogo}" th:classappend="${activo == 'catalogo'} ? 'activo'">
+                    <svg th:replace="~{fragmentos/iconos :: icono('libro')}"></svg> Catálogo
+                </a>
+                <a th:href="@{/mis-solicitudes}" th:classappend="${activo == 'mis-solicitudes'} ? 'activo'">
+                    <svg th:replace="~{fragmentos/iconos :: icono('bandeja')}"></svg> Mis solicitudes
+                </a>
+                <a th:href="@{/mis-prestamos}" th:classappend="${activo == 'mis-prestamos'} ? 'activo'">
+                    <svg th:replace="~{fragmentos/iconos :: icono('prestamos')}"></svg> Mis préstamos
+                </a>
+            </th:block>
+        </nav>
+        <div class="usuario">
+            <div class="avatar" th:text="${#strings.toUpperCase(#strings.substring(usuarioActual.nombre, 0, 1))}">A</div>
+            <div class="usuario-datos">
+                <strong th:text="${usuarioActual.nombre}">Usuario</strong>
+                <small th:text="${usuarioActual.rolEtiqueta}">Rol</small>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn-icono" title="Cerrar sesión" aria-label="Cerrar sesión">
+                    <svg th:replace="~{fragmentos/iconos :: icono('salir')}"></svg>
+                </button>
+            </form>
+        </div>
+    </aside>
+</div>
+<div th:fragment="mensajes">
+    <p class="alerta exito" th:if="${mensaje}">
+        <svg th:replace="~{fragmentos/iconos :: icono('check')}"></svg>
+        <span th:text="${mensaje}"></span>
+    </p>
+    <p class="alerta error" th:if="${error}">
+        <svg th:replace="~{fragmentos/iconos :: icono('alerta')}"></svg>
+        <span th:text="${error}"></span>
+    </p>
+</div>
+</body>
+</html>

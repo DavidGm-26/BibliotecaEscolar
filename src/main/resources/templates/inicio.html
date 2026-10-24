@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: cabecera('Inicio')}"></head>
+<body>
+<div th:replace="~{fragmentos/base :: menu('inicio')}"></div>
+<main class="contenido">
+    <header class="titulo-pagina">
+        <div>
+            <h1>Panel de control</h1>
+            <p>Resumen general de la biblioteca.</p>
+        </div>
+        <a class="btn btn-acento" th:href="@{/prestamos/nuevo}">
+            <svg th:replace="~{fragmentos/iconos :: icono('mas')}"></svg> Registrar préstamo
+        </a>
+    </header>
+    <div th:replace="~{fragmentos/base :: mensajes}"></div>
+
+    <section class="cuadricula-resumen">
+        <article class="resumen">
+            <span class="resumen-icono"><svg th:replace="~{fragmentos/iconos :: icono('libro')}"></svg></span>
+            <div><strong th:text="${totalLibros}">0</strong><span>Libros registrados</span></div>
+        </article>
+        <article class="resumen">
+            <span class="resumen-icono verde"><svg th:replace="~{fragmentos/iconos :: icono('usuarios')}"></svg></span>
+            <div><strong th:text="${totalLectores}">0</strong><span>Lectores</span></div>
+        </article>
+        <article class="resumen">
+            <span class="resumen-icono dorado"><svg th:replace="~{fragmentos/iconos :: icono('reloj')}"></svg></span>
+            <div><strong th:text="${pendientes}">0</strong><span>Préstamos pendientes</span></div>
+        </article>
+        <article class="resumen">
+            <span class="resumen-icono rojo"><svg th:replace="~{fragmentos/iconos :: icono('alerta')}"></svg></span>
+            <div><strong th:text="${vencidos}">0</strong><span>Préstamos vencidos</span></div>
+        </article>
+        <a class="resumen" th:href="@{/gestion-solicitudes}">
+            <span class="resumen-icono"><svg th:replace="~{fragmentos/iconos :: icono('bandeja')}"></svg></span>
+            <div><strong th:text="${solicitudesPendientes}">0</strong><span>Solicitudes por revisar</span></div>
+        </a>
+    </section>
+
+    <section class="tarjeta">
+        <h2>Últimos préstamos</h2>
+        <div class="tabla-contenedor">
+            <table>
+                <thead>
+                <tr>
+                    <th>Libro</th>
+                    <th>Lector</th>
+                    <th>Fecha límite</th>
+                    <th>Estado</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${ultimosPrestamos}">
+                    <td th:text="${p.libro.titulo}"></td>
+                    <td th:text="${p.lector.nombre}"></td>
+                    <td th:text="${#temporals.format(p.fechaLimite, 'dd/MM/yyyy')}"></td>
+                    <td>
+                        <span class="etiqueta neutro" th:if="${p.fechaDevolucion != null}">Devuelto</span>
+                        <span class="etiqueta peligro" th:if="${p.vencido}">Vencido</span>
+                        <span class="etiqueta exito" th:if="${p.fechaDevolucion == null and !p.vencido}">En plazo</span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(ultimosPrestamos)}">
+                    <td colspan="4" class="vacio">Aún no hay préstamos registrados.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

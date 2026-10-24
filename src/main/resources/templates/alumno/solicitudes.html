@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: cabecera('Mis solicitudes')}"></head>
+<body>
+<div th:replace="~{fragmentos/base :: menu('mis-solicitudes')}"></div>
+<main class="contenido">
+    <header class="titulo-pagina">
+        <div>
+            <h1>Mis solicitudes</h1>
+            <p>Estado de las solicitudes de préstamo que ha enviado.</p>
+        </div>
+        <a class="btn btn-acento" th:href="@{/catalogo}">
+            <svg th:replace="~{fragmentos/iconos :: icono('mas')}"></svg> Nueva solicitud
+        </a>
+    </header>
+    <div th:replace="~{fragmentos/base :: mensajes}"></div>
+
+    <section class="cuadricula-resumen">
+        <article class="resumen">
+            <span class="resumen-icono dorado"><svg th:replace="~{fragmentos/iconos :: icono('reloj')}"></svg></span>
+            <div><strong th:text="${pendientes}">0</strong><span>Pendientes</span></div>
+        </article>
+        <article class="resumen">
+            <span class="resumen-icono verde"><svg th:replace="~{fragmentos/iconos :: icono('check')}"></svg></span>
+            <div><strong th:text="${aprobadas}">0</strong><span>Aprobadas</span></div>
+        </article>
+        <article class="resumen">
+            <span class="resumen-icono rojo"><svg th:replace="~{fragmentos/iconos :: icono('cerrar')}"></svg></span>
+            <div><strong th:text="${rechazadas}">0</strong><span>Rechazadas</span></div>
+        </article>
+    </section>
+
+    <section class="tarjeta">
+        <div class="tabla-contenedor">
+            <table>
+                <thead>
+                <tr>
+                    <th>Libro</th>
+                    <th>Solicitada</th>
+                    <th>Estado</th>
+                    <th>Resolución</th>
+                    <th>Detalle</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${solicitudes}">
+                    <td><strong th:text="${s.libro.titulo}"></strong></td>
+                    <td th:text="${#temporals.format(s.fechaSolicitud, 'dd/MM/yyyy')}"></td>
+                    <td>
+                        <span class="etiqueta aviso" th:if="${s.pendiente}" th:text="${s.estadoEtiqueta}"></span>
+                        <span class="etiqueta exito" th:if="${s.aprobada}" th:text="${s.estadoEtiqueta}"></span>
+                        <span class="etiqueta peligro" th:if="${s.rechazada}" th:text="${s.estadoEtiqueta}"></span>
+                    </td>
+                    <td th:text="${s.fechaResolucion != null ? #temporals.format(s.fechaResolucion, 'dd/MM/yyyy') : '—'}"></td>
+                    <td>
+                        <span th:if="${s.rechazada}" th:text="${s.motivoRechazo}"></span>
+                        <span th:if="${s.aprobada}">Préstamo registrado, vea «Mis préstamos»</span>
+                        <span th:if="${s.pendiente}">En espera de revisión</span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(solicitudes)}">
+                    <td colspan="5" class="vacio">Aún no ha enviado solicitudes.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

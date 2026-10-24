@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: cabecera('Mis préstamos')}"></head>
+<body>
+<div th:replace="~{fragmentos/base :: menu('mis-prestamos')}"></div>
+<main class="contenido">
+    <header class="titulo-pagina">
+        <div>
+            <h1>Mis préstamos</h1>
+            <p>Libros en su poder, fechas de devolución e historial.</p>
+        </div>
+    </header>
+
+    <section class="cuadricula-resumen">
+        <article class="resumen">
+            <span class="resumen-icono dorado"><svg th:replace="~{fragmentos/iconos :: icono('reloj')}"></svg></span>
+            <div><strong th:text="${#lists.size(activos)}">0</strong><span>Préstamos activos</span></div>
+        </article>
+        <article class="resumen">
+            <span class="resumen-icono rojo"><svg th:replace="~{fragmentos/iconos :: icono('alerta')}"></svg></span>
+            <div><strong th:text="${vencidos}">0</strong><span>Vencidos</span></div>
+        </article>
+        <article class="resumen">
+            <span class="resumen-icono verde"><svg th:replace="~{fragmentos/iconos :: icono('check')}"></svg></span>
+            <div><strong th:text="${#lists.size(historial)}">0</strong><span>Devueltos</span></div>
+        </article>
+    </section>
+
+    <section class="tarjeta">
+        <h2>Préstamos activos</h2>
+        <div class="tabla-contenedor">
+            <table>
+                <thead>
+                <tr>
+                    <th>Libro</th>
+                    <th>Prestado el</th>
+                    <th>Devolver hasta</th>
+                    <th>Plazo</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${activos}">
+                    <td><strong th:text="${p.libro.titulo}"></strong></td>
+                    <td th:text="${#temporals.format(p.fechaPrestamo, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${#temporals.format(p.fechaLimite, 'dd/MM/yyyy')}"></td>
+                    <td>
+                        <span class="etiqueta peligro" th:if="${p.vencido}"
+                              th:text="${'Vencido hace ' + (-p.diasRestantes) + (-p.diasRestantes == 1 ? ' día' : ' días')}"></span>
+                        <span class="etiqueta aviso" th:if="${!p.vencido and p.diasRestantes == 0}">Vence hoy</span>
+                        <span class="etiqueta exito" th:if="${!p.vencido and p.diasRestantes > 0}"
+                              th:text="${p.diasRestantes + (p.diasRestantes == 1 ? ' día restante' : ' días restantes')}"></span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(activos)}">
+                    <td colspan="4" class="vacio">No tiene préstamos activos.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="tarjeta">
+        <h2>Historial de préstamos</h2>
+        <div class="tabla-contenedor">
+            <table>
+                <thead>
+                <tr>
+                    <th>Libro</th>
+                    <th>Prestado el</th>
+                    <th>Fecha límite</th>
+                    <th>Devuelto el</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${historial}">
+                    <td><strong th:text="${p.libro.titulo}"></strong></td>
+                    <td th:text="${#temporals.format(p.fechaPrestamo, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${#temporals.format(p.fechaLimite, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${#temporals.format(p.fechaDevolucion, 'dd/MM/yyyy')}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(historial)}">
+                    <td colspan="4" class="vacio">Aún no tiene libros devueltos.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

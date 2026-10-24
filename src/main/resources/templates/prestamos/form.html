@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: cabecera('Nuevo préstamo')}"></head>
+<body>
+<div th:replace="~{fragmentos/base :: menu('prestamos')}"></div>
+<main class="contenido">
+    <header class="titulo-pagina">
+        <div>
+            <h1>Registrar préstamo</h1>
+            <p>Seleccione el libro y el lector.</p>
+        </div>
+    </header>
+    <div th:replace="~{fragmentos/base :: mensajes}"></div>
+
+    <section class="tarjeta">
+        <form class="formulario" th:action="@{/prestamos}" method="post">
+            <label for="libroId">Libro disponible</label>
+            <select id="libroId" name="libroId" required>
+                <option value="">Seleccione un libro</option>
+                <option th:each="libro : ${libros}" th:value="${libro.id}"
+                        th:text="${libro.titulo + ' — ' + libro.autor + ' (disponibles: ' + libro.ejemplaresDisponibles + ')'}"></option>
+            </select>
+
+            <label for="lectorId">Lector</label>
+            <select id="lectorId" name="lectorId" required>
+                <option value="">Seleccione un lector</option>
+                <option th:each="lector : ${lectores}" th:value="${lector.id}" th:text="${lector.nombre}"></option>
+            </select>
+
+            <p class="ayuda">El plazo de devolución es de 7 días a partir de hoy.</p>
+
+            <div class="acciones">
+                <button type="submit" class="btn btn-primario">
+                    <svg th:replace="~{fragmentos/iconos :: icono('check')}"></svg> Registrar
+                </button>
+                <a class="btn btn-secundario" th:href="@{/prestamos}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

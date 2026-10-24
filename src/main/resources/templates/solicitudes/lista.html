@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: cabecera('Solicitudes')}"></head>
+<body>
+<div th:replace="~{fragmentos/base :: menu('solicitudes')}"></div>
+<main class="contenido">
+    <header class="titulo-pagina">
+        <div>
+            <h1>Solicitudes de préstamo</h1>
+            <p>Revise las solicitudes enviadas por los alumnos.</p>
+        </div>
+        <span class="etiqueta aviso" th:text="${pendientes + (pendientes == 1 ? ' pendiente' : ' pendientes')}"></span>
+    </header>
+    <div th:replace="~{fragmentos/base :: mensajes}"></div>
+
+    <section class="tarjeta">
+        <div class="herramientas">
+            <div class="buscador">
+                <svg th:replace="~{fragmentos/iconos :: icono('buscar')}"></svg>
+                <input type="search" placeholder="Buscar por alumno o libro..." data-filtrar="#tabla-solicitudes tr[data-buscable]">
+            </div>
+        </div>
+        <div class="tabla-contenedor">
+            <table id="tabla-solicitudes">
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Alumno</th>
+                    <th>Libro</th>
+                    <th>Disponibles</th>
+                    <th>Estado</th>
+                    <th>Acciones / detalle</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${solicitudes}" data-buscable>
+                    <td th:text="${#temporals.format(s.fechaSolicitud, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${s.lector.nombre}"></td>
+                    <td><strong th:text="${s.libro.titulo}"></strong></td>
+                    <td th:text="${s.libro.ejemplaresDisponibles}"></td>
+                    <td>
+                        <span class="etiqueta aviso" th:if="${s.pendiente}" th:text="${s.estadoEtiqueta}"></span>
+                        <span class="etiqueta exito" th:if="${s.aprobada}" th:text="${s.estadoEtiqueta}"></span>
+                        <span class="etiqueta peligro" th:if="${s.rechazada}" th:text="${s.estadoEtiqueta}"></span>
+                    </td>
+                    <td>
+                        <div class="acciones" th:if="${s.pendiente}">
+                            <form th:action="@{/gestion-solicitudes/{id}/aprobar(id=${s.id})}" method="post">
+                                <button type="submit" class="btn btn-primario btn-chico">
+                                    <svg th:replace="~{fragmentos/iconos :: icono('check')}"></svg> Aprobar
+                                </button>
+                            </form>
+                            <form class="rechazo" th:action="@{/gestion-solicitudes/{id}/rechazar(id=${s.id})}" method="post">
+                                <input type="text" name="motivo" placeholder="Motivo (opcional)" maxlength="200">
+                                <button type="submit" class="btn btn-peligro btn-chico">
+                                    <svg th:replace="~{fragmentos/iconos :: icono('cerrar')}"></svg> Rechazar
+                                </button>
+                            </form>
+                        </div>
+                        <span th:if="${!s.pendiente}"
+                              th:text="${(s.fechaResolucion != null ? #temporals.format(s.fechaResolucion, 'dd/MM/yyyy') : '') + (s.motivoRechazo != null ? ' · ' + s.motivoRechazo : '')}"></span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(solicitudes)}">
+                    <td colspan="6" class="vacio">No hay solicitudes registradas.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>
